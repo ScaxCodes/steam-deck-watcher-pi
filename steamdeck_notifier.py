@@ -25,12 +25,18 @@ VERSIONS = [
     ("512", "903907", False),  # 512GB LCD
     ("512", "1202542", True),  # 512GB OLED
     ("1024", "1202547", True), # 1TB OLED
-    ("Wasteland 2: Director's Cut", "240760", False), # Available game for testing
+    # ("Wasteland 2: Director's Cut", "240760", False), # Available game for testing
 ]
+
+def log(message: str):
+    log_entry = f"[{datetime.now()}] {message}"
+    print(log_entry)
+    with open("steam_check.log", "a") as logfile:
+        logfile.write(log_entry + "\n")
 
 def send_telegram_message(message: str):
     if not BOT_TOKEN or not CHAT_ID:
-        print("Missing BOT_TOKEN or CHAT_ID.")
+        log("Missing BOT_TOKEN or CHAT_ID.")
         return
 
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
@@ -42,9 +48,9 @@ def send_telegram_message(message: str):
     try:
         response = requests.post(url, data=payload)
         if not response.ok:
-            print("Failed to send Telegram message:", response.text)
+            log(f"Failed to send Telegram message: {response.text}")
     except Exception as e:
-        print("Telegram error:", e)
+        log(f"Telegram error: {e}")
 
 def check_steam_deck(version: str, package_id: str, is_oled: bool):
     file_path = f"{package_id}.status"
@@ -59,7 +65,7 @@ def check_steam_deck(version: str, package_id: str, is_oled: bool):
         data = response.json()
         new_status = str(data["response"]["inventory_available"])
 
-        print(f"{datetime.now()} - {version}GB ({'OLED' if is_oled else 'LCD'}): {new_status}")
+        log(f"{version}GB ({'OLED' if is_oled else 'LCD'}) - Available: {new_status}")
 
         # Update file
         with open(file_path, "w") as f:
@@ -70,9 +76,10 @@ def check_steam_deck(version: str, package_id: str, is_oled: bool):
             send_telegram_message(
                 f"🟢 Refurbished {version}GB {'OLED' if is_oled else 'LCD'} Steam Deck is now available!"
             )
+            log(f"🔔 Notification sent for {version}GB {'OLED' if is_oled else 'LCD'}")
 
     except Exception as e:
-        print(f"Error checking version {version}: {e}")
+        log(f"Error checking version {version}: {e}")
 
 def main():
     for version, package_id, is_oled in VERSIONS:
