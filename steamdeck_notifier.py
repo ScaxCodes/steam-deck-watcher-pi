@@ -77,6 +77,13 @@ def check_steam_deck(version: str, package_id: str, is_oled: bool):
                 f"🟢 Refurbished {version}GB {'OLED' if is_oled else 'LCD'} Steam Deck is now available!"
             )
             log(f"🔔 Notification sent for {version}GB {'OLED' if is_oled else 'LCD'}")
+        
+        # Notify if status changed and product is now unavailable
+        elif new_status != old_status and new_status == "False":
+            send_telegram_message(
+                f"🔴 Refurbished {version}GB {'OLED' if is_oled else 'LCD'} Steam Deck is now unavailable!"
+            )
+            log(f"🔔 Notification sent for {version}GB {'OLED' if is_oled else 'LCD'}")
 
     except Exception as e:
         log(f"Error checking version {version}: {e}")
