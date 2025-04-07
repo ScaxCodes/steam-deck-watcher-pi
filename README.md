@@ -1,6 +1,6 @@
 # Steam Deck Watcher for Raspberry Pi
 
-This project checks the availability of refurbished Steam Decks using the Steam API and sends notifications via a Telegram bot when a status change is detected. The script is designed to run on a Raspberry Pi (recommended Raspberry Pi OS Lite) and uses a Python virtual environment for dependency management.
+This project checks the availability of [refurbished Steam Decks](https://store.steampowered.com/sale/steamdeckrefurbished/) using the Steam API and sends notifications via a Telegram bot when a status change is detected. The script is designed to run on a Raspberry Pi (recommended Raspberry Pi OS Lite) and uses a Python virtual environment for dependency management.
 
 ## How It Works
 
@@ -26,7 +26,16 @@ Follow these steps to install and run the script on your Raspberry Pi running Ra
 - **Flash:** Use the Raspberry Pi Imager to write the image to your SD card.
 - **Setup:** Insert the SD card into your Pi, connect it to Ethernet (and optionally a monitor, keyboard, and mouse), and boot it up.
 
-### 2. Install Git on the Pi
+### 2. Connect via SSH (Optional)
+
+If you prefer to work remotely, you can enable SSH during the setup process in the Raspberry Pi Imager.  
+Be sure to also set a username and password so you can log in via SSH later with:
+
+```bash
+ssh <your_username>@<raspberry_pi_ip_address>
+```
+
+### 3. Install Git on the Pi
 
 If Git is not already installed, install it with:
 
@@ -35,23 +44,12 @@ sudo apt update
 sudo apt install git -y
 ```
 
-### 3. Connect via SSH (Optional)
-
-If you prefer to work remotely:
-
-1. Enable SSH on the Pi (create an empty file named ssh in the boot partition).
-2. Connect from your Mac or another computer:
-
-```bash
-ssh pi@<raspberry_pi_ip_address>
-```
-
 ### 4. Clone the Repository
 
-Clone your project repository to the Pi:
+Clone the project repository to the Pi:
 
 ```bash
-git clone https://github.com/<YOUR_USERNAME>/steam-deck-watcher-pi.git
+git clone https://github.com/ScaxCodes/steam-deck-watcher-pi.git
 cd steam-deck-watcher-pi
 ```
 
@@ -59,18 +57,19 @@ cd steam-deck-watcher-pi
 
 A virtual environment isolates your project’s dependencies from the system packages. This is important to avoid conflicts and keep your system stable.
 
-Create the virtual environment:
+5.1. Create the virtual environment:
 
-bash
-Kopieren
-Bearbeiten
+```bash
 python3 -m venv venv
-Activate the virtual environment:
+```
+
+5.2. Activate the virtual environment:
 
 ```bash
 source venv/bin/activate
-You should see (venv) at the beginning of your terminal prompt.
 ```
+
+You should see (venv) at the beginning of your terminal prompt.
 
 ### 6. Install Python Dependencies
 
@@ -88,14 +87,14 @@ Create a .env file in the project directory. You can use nano to edit the file:
 nano .env
 ```
 
-Then copy and paste the following (replace with your actual values):
+Then write or copy and paste via SSH the following (replace with your actual values):
 
 ```ini
 BOT_TOKEN=your_telegram_bot_token
 CHAT_ID=your_telegram_chat_id
 ```
 
-Save and exit nano (press Ctrl+O, then Enter, and Ctrl+X).
+Save and exit (`Ctrl+O`, `Enter`, `Ctrl+X`).
 
 ### 8. Test the Script
 
@@ -109,7 +108,7 @@ Check the console output and the generated steam_check.log file to verify that t
 
 ### 9. Set Up a Cron Job
 
-To run the script every minute, add a cron job. Open your crontab:
+To run the script every minute, add a cron job, so even if the Raspberry Pi restarts or you disconnect from SSH, the script continues to run. Open your crontab:
 
 ```bash
 crontab -e
@@ -121,18 +120,8 @@ Add the following line (replace <YOUR_USERNAME> with your actual username):
 * * * * * cd /home/<YOUR_USERNAME>/steam-deck-watcher-pi && /home/<YOUR_USERNAME>/steam-deck-watcher-pi/venv/bin/python3 steamdeck_notifier.py
 ```
 
-This cron job will run the script every minute. Even if you disconnect your SSH session, the cron job will continue to run in the background.
+This cron job will run the script every minute. Even after reboots or SSH disconnections, it will keep working.
 
 ## Additional Resources
 
 To learn how to set up a Telegram bot and get an API key, check out the [Telegram Bot Tutorial](https://core.telegram.org/bots/tutorial).
-
-## Summary
-
-### Virtual Environment:
-
-A Python virtual environment (venv) is used to isolate the project’s dependencies from the system-wide packages. This prevents conflicts and ensures that installing packages like requests and python-dotenv does not affect your system.
-
-### Cron Job:
-
-The script is set up to run periodically via cron, so even if the Raspberry Pi restarts or you disconnect from SSH, the script continues to run.
